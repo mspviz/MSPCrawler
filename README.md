@@ -10,8 +10,11 @@ TODO:
 - Handle missing table pagination row
 
 Usage:
-scrapy crawl msps
-scrapy crawl votes -a mspid=THEMSPID
 
-Alternatively, with a valid msps.json file:
-python getAllVotes.py
+    scrapy crawl msps
+    scrapy crawl votes -a mspid=THEMSPID
+
+Alternatively, for all votes:
+
+    scrapy crawl msps
+    python getAllVotes.py
