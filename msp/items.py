@@ -11,6 +11,7 @@ class MSPItem(Item):
     mspid = Field()
     name = Field()
     area = Field()
+    parentregion = Field()
     email = Field()
     party = Field()
     imguri = Field()
