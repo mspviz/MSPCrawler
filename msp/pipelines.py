@@ -3,8 +3,10 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 from msp.items import MSPItem, VoteItem
+from msp.spiders.mspcrawler import MSPCrawler, VoteCrawler
 from scrapy import signals
 from scrapy.contrib.exporter import JsonLinesItemExporter
+import os
 
 class MspPipeline(object):
     def __init__(self):
@@ -19,19 +21,24 @@ class MspPipeline(object):
         return pipeline
     
     def spider_opened(self, spider):
-        MSPFile = open('msps.json', 'w+b')
-        self.files['msps'] = MSPFile
-        self.MSPExporter = JsonLinesItemExporter(MSPFile)
-        self.MSPExporter.start_exporting()
-        
-        VoteFile = open('votes.json', 'w+b')
-        self.files['votes'] = VoteFile
-        self.VoteExporter = JsonLinesItemExporter(VoteFile)
-        self.VoteExporter.start_exporting()
+        if not os.path.exists('./json/'):
+            os.makedirs('./json/')
+        if isinstance(spider, MSPCrawler):
+            MSPFile = open('json/msps.json', 'w+b')
+            self.files['msps'] = MSPFile
+            self.MSPExporter = JsonLinesItemExporter(MSPFile)
+            self.MSPExporter.start_exporting()
+        elif isinstance(spider, VoteCrawler):
+            VoteFile = open('json/votes-' + spider.mspid + '.json', 'w+b')
+            self.files['votes'] = VoteFile
+            self.VoteExporter = JsonLinesItemExporter(VoteFile)
+            self.VoteExporter.start_exporting()
         
     def spider_closed(self, spider):
-        self.VoteExporter.finish_exporting()
-        self.MSPExporter.finish_exporting()
+        if isinstance(spider, VoteCrawler):
+            self.VoteExporter.finish_exporting()
+        elif isinstance(spider, MSPCrawler):
+            self.MSPExporter.finish_exporting()
         for file in self.files.values():
             file.close()
     
